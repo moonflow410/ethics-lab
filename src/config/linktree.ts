@@ -1,10 +1,14 @@
 export const profile = {
   teacherName: "최윤리",
-  title: "최윤리의 미니홈피",
+  title: "윤리고수의 윤리실험실",
   introTitle: "최윤리의 미니홈피",
   introDescription: "윤리를 가르칩니다.",
-  catalogTitle: "윤리고수",
-  catalogDescription: "윤리를 가르칩니다.",
+  /* 홈 탭 오른쪽 위, 미니룸 바로 위에 나오는 제목입니다. */
+  catalogTitle: "윤리고수의 윤리실험실",
+  /* 이름 바로 아래 작은 글씨입니다. */
+  catalogDescription: "세화여자고등학교",
+  /* 프로필 사진 바로 아래 소개입니다. 줄바꿈(\n)은 그대로 줄이 나뉘어 보입니다. */
+  photoCaption: "윤리를 사랑하고 가르칩니다.\n디지털 AI로 학생들이 더욱 재미있게 접근할 수 있도록 실험합니다.",
   /* 왼쪽 프로필 사진입니다. public/assets/ 안에 파일을 넣고 경로를 적으세요. */
   photo: { src: "/assets/f685b148cc81d77507d107e1f8262906.jpg", alt: "최윤리 프로필 사진" },
   /* 홈 탭 위쪽 미니룸 이미지입니다. public/assets/ 안에 파일을 넣고 경로를 적으세요. */

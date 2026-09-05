@@ -82,7 +82,24 @@ export type BoardPost = {
   preview?: { src: string; alt: string };
 };
 
-export const boardPosts: BoardPost[] = [];
+export const boardPosts: BoardPost[] = [
+  {
+    id: "veil-escape",
+    category: "앱",
+    title: "무지의 베일 방탈출",
+    summary: "다섯 개의 자물쇠를 풀어 정의의 원칙에 도달하는 롤스 원초적 입장 체험",
+    date: "2026.09.05",
+    href: "https://script.google.com/macros/s/AKfycby7boGZ9A0YZdmlkseBdcnpUHbUK3v5p9gEMh6V8XkkxkQYbKuWGwB7lJlmqR8yZCFm/exec"
+  },
+  {
+    id: "moral-foundations",
+    category: "앱",
+    title: "나의 도덕적 기초 찾기",
+    summary: "24개 질문에 답하면 나와 결이 닮은 사상가 3명과 교과서 단원을 알려줍니다",
+    date: "2026.09.05",
+    href: "https://script.google.com/macros/s/AKfycbzy91Cy_jer13LoSNQM_nzMKFDvjSHE7XemvUXMcPrbwWV8eTqzyw3B3tI-B4M3l_HB/exec"
+  }
+];
 
 /* 사진첩 탭입니다. */
 export type PhotoItem = {

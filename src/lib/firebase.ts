@@ -4,8 +4,17 @@
    정상적인 사용법입니다. 실제 접근 제어는 firestore.rules 가 담당합니다. */
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import {
+  GoogleAuthProvider,
+  getAuth,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+  type Auth
+} from "firebase/auth";
+import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getFirestore,
   limit as fsLimit,
@@ -37,6 +46,7 @@ export type RemoteEntry = {
   author: string;
   text: string;
   date: string;
+  uid?: string;
 };
 
 let app: FirebaseApp | null = null;
@@ -49,6 +59,65 @@ function getDb() {
     db = getFirestore(app);
   }
   return db;
+}
+
+/* ---------------------------------------------------------------
+   구글 로그인입니다.
+   한줄평과 사진첩은 로그인한 사람만 남길 수 있고,
+   자기가 올린 것만 지울 수 있습니다(규칙은 firestore.rules 에 있습니다).
+   --------------------------------------------------------------- */
+export const isAuthEnabled = isGuestbookEnabled;
+
+export type SiteUser = {
+  uid: string;
+  name: string;
+  photo: string | null;
+};
+
+let auth: Auth | null = null;
+
+function getAuthInstance() {
+  if (!isAuthEnabled) return null;
+  if (!auth) {
+    app = getApps()[0] ?? initializeApp(config as Record<string, string>);
+    auth = getAuth(app);
+  }
+  return auth;
+}
+
+/* 로그인 상태가 바뀔 때마다 알려 줍니다. 정리 함수를 돌려줍니다. */
+export function subscribeUser(onChange: (user: SiteUser | null) => void) {
+  const instance = getAuthInstance();
+  if (!instance) return () => {};
+
+  return onAuthStateChanged(instance, current => {
+    onChange(
+      current
+        ? {
+            uid: current.uid,
+            name: current.displayName?.trim() || "이름 없는 방문자",
+            photo: current.photoURL
+          }
+        : null
+    );
+  });
+}
+
+export async function signInWithGoogle() {
+  const instance = getAuthInstance();
+  if (!instance) throw new Error("로그인 기능이 설정되지 않았습니다.");
+  await signInWithPopup(instance, new GoogleAuthProvider());
+}
+
+export async function signOutUser() {
+  const instance = getAuthInstance();
+  if (instance) await signOut(instance);
+}
+
+function requireUser() {
+  const current = getAuthInstance()?.currentUser;
+  if (!current) throw new Error("구글 로그인 후에 남길 수 있어요.");
+  return current;
 }
 
 function formatDate(value: unknown) {
@@ -124,7 +193,8 @@ export function subscribeGuestbook(
             id: doc.id,
             author: String(data.author ?? ""),
             text: String(data.text ?? ""),
-            date: formatDate(data.createdAt)
+            date: formatDate(data.createdAt),
+            uid: data.uid ? String(data.uid) : undefined
           };
         })
       );
@@ -133,23 +203,106 @@ export function subscribeGuestbook(
   );
 }
 
-export async function addGuestbookEntry(author: string, text: string) {
+export async function addGuestbookEntry(text: string) {
   const store = getDb();
   if (!store) throw new Error("한줄평 기능이 설정되지 않았습니다.");
 
-  const trimmedAuthor = author.trim();
+  const current = requireUser();
+  const author = (current.displayName?.trim() || "이름 없는 방문자").slice(0, GUESTBOOK_LIMITS.author);
   const trimmedText = text.trim();
 
-  if (!trimmedAuthor || !trimmedText) throw new Error("이름과 한줄평을 모두 적어 주세요.");
-  if (trimmedAuthor.length > GUESTBOOK_LIMITS.author) throw new Error(`이름은 ${GUESTBOOK_LIMITS.author}자까지 쓸 수 있어요.`);
+  if (!trimmedText) throw new Error("한줄평을 적어 주세요.");
   if (trimmedText.length > GUESTBOOK_LIMITS.text) throw new Error(`한줄평은 ${GUESTBOOK_LIMITS.text}자까지 쓸 수 있어요.`);
 
   /* approved 는 지금은 항상 true 입니다. 나중에 승인제로 바꾸려면
      이 값을 false 로 두고 firestore.rules 의 read 조건만 바꾸면 됩니다. */
   await addDoc(collection(store, "guestbook"), {
-    author: trimmedAuthor,
+    author,
     text: trimmedText,
     approved: true,
+    uid: current.uid,
     createdAt: serverTimestamp()
   });
+}
+
+/* 자기가 남긴 한줄평만 지울 수 있습니다. */
+export async function deleteGuestbookEntry(id: string) {
+  const store = getDb();
+  if (!store) throw new Error("한줄평 기능이 설정되지 않았습니다.");
+  requireUser();
+  await deleteDoc(doc(store, "guestbook", id));
+}
+
+/* ---------------------------------------------------------------
+   사진첩입니다. Firebase Storage 는 유료(Blaze) 요금제가 필요해서,
+   사진을 브라우저에서 줄인 뒤 문서 안에 data URL 로 담아 Firestore 에 저장합니다.
+   문서 하나가 1MB 를 넘을 수 없으므로 업로드 전에 반드시 줄여야 합니다.
+   --------------------------------------------------------------- */
+export const PHOTO_LIMITS = { name: 40, chars: 900_000, maxSide: 1000 } as const;
+
+export type RemotePhoto = {
+  id: string;
+  name: string;
+  src: string;
+  author: string;
+  date: string;
+  uid?: string;
+};
+
+export function subscribePhotos(
+  count: number,
+  onData: (photos: RemotePhoto[]) => void,
+  onError: (error: Error) => void
+) {
+  const store = getDb();
+  if (!store) return () => {};
+
+  const q = query(collection(store, "photos"), orderBy("createdAt", "desc"), fsLimit(count));
+  return onSnapshot(
+    q,
+    snapshot => {
+      onData(
+        snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: String(data.name ?? ""),
+            src: String(data.data ?? ""),
+            author: String(data.author ?? ""),
+            date: formatDate(data.createdAt),
+            uid: data.uid ? String(data.uid) : undefined
+          };
+        })
+      );
+    },
+    error => onError(error as Error)
+  );
+}
+
+export async function addPhoto(name: string, dataUrl: string) {
+  const store = getDb();
+  if (!store) throw new Error("사진첩 기능이 설정되지 않았습니다.");
+
+  const current = requireUser();
+  const trimmedName = name.trim().slice(0, PHOTO_LIMITS.name);
+
+  if (!dataUrl.startsWith("data:image/")) throw new Error("이미지 파일만 올릴 수 있어요.");
+  if (dataUrl.length > PHOTO_LIMITS.chars) throw new Error("사진 용량이 너무 커요. 더 작은 사진으로 올려 주세요.");
+
+  await addDoc(collection(store, "photos"), {
+    name: trimmedName,
+    data: dataUrl,
+    author: (current.displayName?.trim() || "이름 없는 방문자").slice(0, GUESTBOOK_LIMITS.author),
+    approved: true,
+    uid: current.uid,
+    createdAt: serverTimestamp()
+  });
+}
+
+/* 자기가 올린 사진만 지울 수 있습니다. */
+export async function deletePhoto(id: string) {
+  const store = getDb();
+  if (!store) throw new Error("사진첩 기능이 설정되지 않았습니다.");
+  requireUser();
+  await deleteDoc(doc(store, "photos", id));
 }

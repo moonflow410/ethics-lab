@@ -16,7 +16,9 @@ service cloud.firestore {
     match /guestbook/{entryId} {
       allow read: if true;
 
-      allow create: if request.resource.data.keys().hasOnly(['author', 'text', 'approved', 'createdAt'])
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['author', 'text', 'approved', 'uid', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
         && request.resource.data.author is string
         && request.resource.data.author.size() >= 1
         && request.resource.data.author.size() <= 20
@@ -26,7 +28,33 @@ service cloud.firestore {
         && request.resource.data.approved == true
         && request.resource.data.createdAt == request.time;
 
-      allow update, delete: if false;
+      allow update: if false;
+
+      /* 자기가 남긴 글만 지울 수 있습니다. 그 밖의 삭제는 Firebase 콘솔에서 합니다. */
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    /* 사진첩입니다. Storage 는 유료(Blaze) 요금제가 필요해서,
+       사진을 브라우저에서 줄인 뒤 문서 안에 data URL 로 담습니다.
+       문서 하나가 1MB 를 넘을 수 없으므로 data 길이를 900,000자로 제한합니다. */
+    match /photos/{photoId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['name', 'data', 'author', 'approved', 'uid', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 40
+        && request.resource.data.data is string
+        && request.resource.data.data.size() <= 900000
+        && request.resource.data.author is string
+        && request.resource.data.author.size() <= 20
+        && request.resource.data.approved == true
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if false;
+
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
     }
 
     /* 미니홈피 왼쪽 위 TODAY / TOTAL 방문 수입니다. 문서 하나만 씁니다.

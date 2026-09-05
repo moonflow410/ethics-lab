@@ -9,7 +9,6 @@ import {
   PHOTO_LIMITS,
   addGuestbookEntry,
   addPhoto,
-  deleteGuestbookEntry,
   deletePhoto,
   isCounterEnabled,
   isGuestbookEnabled,
@@ -309,7 +308,9 @@ function SignInButton({ label }: { label: string }) {
   );
 }
 
-function GuestbookForm({ user }: { user: SiteUser | null }) {
+/* 한줄평은 로그인 없이 익명으로 남깁니다. 이름은 원하는 대로 적으면 됩니다. */
+function GuestbookForm() {
+  const [author, setAuthor] = useState("");
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
@@ -320,7 +321,8 @@ function GuestbookForm({ user }: { user: SiteUser | null }) {
     setSending(true);
     setMessage(null);
     try {
-      await addGuestbookEntry(text);
+      await addGuestbookEntry(author, text);
+      setAuthor("");
       setText("");
       setMessage({ kind: "ok", text: "한줄평을 남겼어요. 고맙습니다!" });
     } catch (error) {
@@ -330,18 +332,16 @@ function GuestbookForm({ user }: { user: SiteUser | null }) {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="cy-auth-bar">
-        <span className="cy-auth-hint">구글 계정으로 로그인하면 한줄평을 남길 수 있어요.</span>
-        <SignInButton label="구글로 로그인" />
-      </div>
-    );
-  }
-
   return (
     <form className="cy-guestbook-form" onSubmit={submit}>
-      <span className="cy-gb-me">{user.name}</span>
+      <input
+        className="cy-gb-author"
+        value={author}
+        onChange={e => setAuthor(e.target.value)}
+        placeholder="이름"
+        maxLength={GUESTBOOK_LIMITS.author}
+        aria-label="이름"
+      />
       <input
         className="cy-gb-text"
         value={text}
@@ -352,9 +352,6 @@ function GuestbookForm({ user }: { user: SiteUser | null }) {
       />
       <button className="cy-gb-submit" type="submit" disabled={sending}>
         {sending ? "전송중" : "남기기"}
-      </button>
-      <button type="button" className="cy-auth-out" onClick={() => signOutUser()}>
-        로그아웃
       </button>
       {message ? (
         <span className={`cy-gb-message${message.kind === "error" ? " is-error" : ""}`}>{message.text}</span>
@@ -377,12 +374,10 @@ function GuestbookList() {
     return subscribeGuestbook(GUESTBOOK_FETCH_LIMIT, setRemote, () => setFailed(true));
   }, []);
 
-  const user = useSiteUser();
-
   const live = isGuestbookEnabled && !failed;
   const entries = live && remote
     ? remote.map(e => ({ key: e.id, ...e }))
-    : guestbook.map(e => ({ key: String(e.id), ...e, uid: undefined as string | undefined }));
+    : guestbook.map(e => ({ key: String(e.id), ...e }));
 
   const pageCount = Math.max(1, Math.ceil(entries.length / GUESTBOOK_PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
@@ -406,17 +401,6 @@ function GuestbookList() {
               </span>
               <span className="cg-text">{c.text}</span>
               <span className="cg-date">({c.date})</span>
-              {user && c.uid === user.uid ? (
-                <button
-                  type="button"
-                  className="cy-mine-del"
-                  onClick={() => deleteGuestbookEntry(c.key).catch(() => {})}
-                  aria-label="내 한줄평 지우기"
-                  title="내 한줄평 지우기"
-                >
-                  ✕
-                </button>
-              ) : null}
             </div>
           ))
         )}
@@ -438,7 +422,7 @@ function GuestbookList() {
         </div>
       ) : null}
 
-      {live ? <GuestbookForm user={user} /> : null}
+      {live ? <GuestbookForm /> : null}
     </>
   );
 }

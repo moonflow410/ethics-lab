@@ -125,13 +125,50 @@ export function secondsAt(timestamp: string): number {
     .reduce((total, part) => total * 60 + part, 0);
 }
 
+/* 한 편의 플레이리스트 영상(1132 PLAYLIST, 도토리 쓰던 싸이월드 BGM) 안의 곡들입니다.
+   videoId 는 모두 같고 startAt 만 다릅니다. 제목을 누르면 그 곡부터 재생됩니다. */
+const CYWORLD_BGM = "ShxagKy3CHQ";
+
 export const bgmTracks: BgmTrack[] = [
-  {
-    id: "cyworld-bgm",
-    title: "도토리 쓴 싸이월드 BGM 플레이리스트",
-    artist: "1132 PLAYLIST",
-    videoId: "ShxagKy3CHQ"
-  }
+  { id: "bgm-01", title: "프리스타일 - Y", videoId: CYWORLD_BGM, startAt: secondsAt("0:01") },
+  { id: "bgm-02", title: "샵(S#arp) - 내 입술 따뜻한 커피처럼", videoId: CYWORLD_BGM, startAt: secondsAt("4:35") },
+  { id: "bgm-03", title: "윤미래 - Memories", videoId: CYWORLD_BGM, startAt: secondsAt("8:19") },
+  { id: "bgm-04", title: "박명호 - 사진 (하늘만 바라봐)", videoId: CYWORLD_BGM, startAt: secondsAt("12:30") },
+  { id: "bgm-05", title: "에픽하이 - 우산 (feat. 윤하)", videoId: CYWORLD_BGM, startAt: secondsAt("16:27") },
+  { id: "bgm-06", title: "리쌍 - Ballerino", videoId: CYWORLD_BGM, startAt: secondsAt("21:22") },
+  { id: "bgm-07", title: "키네틱플로우 - 몽환의 숲 (feat. 이루마)", videoId: CYWORLD_BGM, startAt: secondsAt("25:44") },
+  { id: "bgm-08", title: "MC몽 - 너에게 쓰는 편지 (feat. 린)", videoId: CYWORLD_BGM, startAt: secondsAt("29:49") },
+  { id: "bgm-09", title: "브라운 아이즈 - 벌써 일년", videoId: CYWORLD_BGM, startAt: secondsAt("33:15") },
+  { id: "bgm-10", title: "김동률 - 다시 사랑한다 말할까", videoId: CYWORLD_BGM, startAt: secondsAt("36:41") },
+  { id: "bgm-11", title: "프리스타일 - 수취인불명", videoId: CYWORLD_BGM, startAt: secondsAt("41:27") },
+  { id: "bgm-12", title: "싸이 - 낙원 (feat. 이재훈)", videoId: CYWORLD_BGM, startAt: secondsAt("45:25") },
+  { id: "bgm-13", title: "MC 스나이퍼 - BK Love", videoId: CYWORLD_BGM, startAt: secondsAt("49:07") },
+  { id: "bgm-14", title: "타우 - 우리들의 행복한 시간", videoId: CYWORLD_BGM, startAt: secondsAt("53:28") },
+  { id: "bgm-15", title: "넬 - 기억을 걷는 시간", videoId: CYWORLD_BGM, startAt: secondsAt("57:15") },
+  { id: "bgm-16", title: "다이나믹 듀오 - Ring My Bell", videoId: CYWORLD_BGM, startAt: secondsAt("1:02:27") },
+  { id: "bgm-17", title: "바이브 - Promise U", videoId: CYWORLD_BGM, startAt: secondsAt("1:06:15") },
+  { id: "bgm-18", title: "포맨 - 다시 사랑할 수 있을까", videoId: CYWORLD_BGM, startAt: secondsAt("1:10:19") },
+  { id: "bgm-19", title: "Brown Eyed Girls - Far Away (feat. MC몽)", videoId: CYWORLD_BGM, startAt: secondsAt("1:14:59") },
+  { id: "bgm-20", title: "키네틱플로우 - 헤어지던 밤 (feat. 혜란)", videoId: CYWORLD_BGM, startAt: secondsAt("1:18:41") },
+  { id: "bgm-21", title: "리쌍 - 헤어지지 못하는 여자, 떠나가지 못하는 남자", videoId: CYWORLD_BGM, startAt: secondsAt("1:23:04") },
+  { id: "bgm-22", title: "임정희 - 눈물이 안 났어", videoId: CYWORLD_BGM, startAt: secondsAt("1:27:47") },
+  { id: "bgm-23", title: "씨야 - 사랑의 인사", videoId: CYWORLD_BGM, startAt: secondsAt("1:31:24") },
+  { id: "bgm-24", title: "izi - 응급실", videoId: CYWORLD_BGM, startAt: secondsAt("1:35:56") },
+  { id: "bgm-25", title: "버즈 - 남자를 몰라", videoId: CYWORLD_BGM, startAt: secondsAt("1:39:38") },
+  { id: "bgm-26", title: "에이트 - 사랑을 잃고 나 노래하네", videoId: CYWORLD_BGM, startAt: secondsAt("1:43:47") },
+  { id: "bgm-27", title: "리쌍 - Rush (feat. 정인)", videoId: CYWORLD_BGM, startAt: secondsAt("1:47:47") },
+  { id: "bgm-28", title: "나얼 - 귀로", videoId: CYWORLD_BGM, startAt: secondsAt("1:51:38") },
+  { id: "bgm-29", title: "김종국 & SG워너비 - 바람만 바람만", videoId: CYWORLD_BGM, startAt: secondsAt("1:56:03") },
+  { id: "bgm-30", title: "마골피 - 비행소녀", videoId: CYWORLD_BGM, startAt: secondsAt("2:00:23") },
+  { id: "bgm-31", title: "버즈 - 가시", videoId: CYWORLD_BGM, startAt: secondsAt("2:05:59") },
+  { id: "bgm-32", title: "MC 스나이퍼 - 봄이여 오라", videoId: CYWORLD_BGM, startAt: secondsAt("2:08:58") },
+  { id: "bgm-33", title: "리즈 - 그댄 행복에 살텐데", videoId: CYWORLD_BGM, startAt: secondsAt("2:12:42") },
+  { id: "bgm-34", title: "바이브 - 사진을 보다가", videoId: CYWORLD_BGM, startAt: secondsAt("2:17:21") },
+  { id: "bgm-35", title: "클래지콰이 - She Is", videoId: CYWORLD_BGM, startAt: secondsAt("2:21:56") },
+  { id: "bgm-36", title: "더 넛츠 - 잔소리", videoId: CYWORLD_BGM, startAt: secondsAt("2:25:40") },
+  { id: "bgm-37", title: "임정희 - 시계태엽", videoId: CYWORLD_BGM, startAt: secondsAt("2:29:36") },
+  { id: "bgm-38", title: "배치기 - 현관을 열면", videoId: CYWORLD_BGM, startAt: secondsAt("2:33:05") },
+  { id: "bgm-39", title: "이루 - 까만안경", videoId: CYWORLD_BGM, startAt: secondsAt("2:37:48") }
 ];
 
 /* 홈 탭 아래쪽 한마디입니다. */

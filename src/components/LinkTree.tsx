@@ -6,12 +6,22 @@ import { asset } from "@/lib/asset";
 import BgmPlayer, { type BgmHandle } from "@/components/BgmPlayer";
 import {
   GUESTBOOK_LIMITS,
+  PHOTO_LIMITS,
   addGuestbookEntry,
+  addPhoto,
+  deleteGuestbookEntry,
+  deletePhoto,
   isCounterEnabled,
   isGuestbookEnabled,
   recordVisit,
+  signInWithGoogle,
+  signOutUser,
   subscribeGuestbook,
+  subscribePhotos,
+  subscribeUser,
   type RemoteEntry,
+  type RemotePhoto,
+  type SiteUser,
   type VisitCounts
 } from "@/lib/firebase";
 import {
@@ -264,8 +274,42 @@ function BoardTab() {
   );
 }
 
-function GuestbookForm() {
-  const [author, setAuthor] = useState("");
+/* 지금 로그인한 사람입니다. 로그인하지 않았으면 null 입니다. */
+function useSiteUser() {
+  const [user, setUser] = useState<SiteUser | null>(null);
+  useEffect(() => subscribeUser(setUser), []);
+  return user;
+}
+
+/* 구글 로그인 버튼입니다. 로그인 창이 팝업으로 열립니다. */
+function SignInButton({ label }: { label: string }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const click = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await signInWithGoogle();
+    } catch {
+      setError("로그인 창이 닫혔거나 실패했어요. 다시 시도해 주세요.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <button type="button" className="cy-auth-btn" onClick={click} disabled={busy}>
+        {busy ? "로그인 중…" : label}
+      </button>
+      {error ? <span className="cy-gb-message is-error">{error}</span> : null}
+    </>
+  );
+}
+
+function GuestbookForm({ user }: { user: SiteUser | null }) {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
@@ -276,8 +320,7 @@ function GuestbookForm() {
     setSending(true);
     setMessage(null);
     try {
-      await addGuestbookEntry(author, text);
-      setAuthor("");
+      await addGuestbookEntry(text);
       setText("");
       setMessage({ kind: "ok", text: "한줄평을 남겼어요. 고맙습니다!" });
     } catch (error) {
@@ -287,16 +330,18 @@ function GuestbookForm() {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="cy-auth-bar">
+        <span className="cy-auth-hint">구글 계정으로 로그인하면 한줄평을 남길 수 있어요.</span>
+        <SignInButton label="구글로 로그인" />
+      </div>
+    );
+  }
+
   return (
     <form className="cy-guestbook-form" onSubmit={submit}>
-      <input
-        className="cy-gb-author"
-        value={author}
-        onChange={e => setAuthor(e.target.value)}
-        placeholder="이름"
-        maxLength={GUESTBOOK_LIMITS.author}
-        aria-label="이름"
-      />
+      <span className="cy-gb-me">{user.name}</span>
       <input
         className="cy-gb-text"
         value={text}
@@ -307,6 +352,9 @@ function GuestbookForm() {
       />
       <button className="cy-gb-submit" type="submit" disabled={sending}>
         {sending ? "전송중" : "남기기"}
+      </button>
+      <button type="button" className="cy-auth-out" onClick={() => signOutUser()}>
+        로그아웃
       </button>
       {message ? (
         <span className={`cy-gb-message${message.kind === "error" ? " is-error" : ""}`}>{message.text}</span>
@@ -329,10 +377,12 @@ function GuestbookList() {
     return subscribeGuestbook(GUESTBOOK_FETCH_LIMIT, setRemote, () => setFailed(true));
   }, []);
 
+  const user = useSiteUser();
+
   const live = isGuestbookEnabled && !failed;
   const entries = live && remote
     ? remote.map(e => ({ key: e.id, ...e }))
-    : guestbook.map(e => ({ key: String(e.id), ...e }));
+    : guestbook.map(e => ({ key: String(e.id), ...e, uid: undefined as string | undefined }));
 
   const pageCount = Math.max(1, Math.ceil(entries.length / GUESTBOOK_PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
@@ -356,6 +406,17 @@ function GuestbookList() {
               </span>
               <span className="cg-text">{c.text}</span>
               <span className="cg-date">({c.date})</span>
+              {user && c.uid === user.uid ? (
+                <button
+                  type="button"
+                  className="cy-mine-del"
+                  onClick={() => deleteGuestbookEntry(c.key).catch(() => {})}
+                  aria-label="내 한줄평 지우기"
+                  title="내 한줄평 지우기"
+                >
+                  ✕
+                </button>
+              ) : null}
             </div>
           ))
         )}
@@ -377,7 +438,7 @@ function GuestbookList() {
         </div>
       ) : null}
 
-      {live ? <GuestbookForm /> : null}
+      {live ? <GuestbookForm user={user} /> : null}
     </>
   );
 }
@@ -409,19 +470,146 @@ function VisitCounter() {
   );
 }
 
+/* 올린 사진을 브라우저에서 미리 줄입니다.
+   Firestore 문서 하나가 1MB 를 넘을 수 없어서, 긴 변을 PHOTO_LIMITS.maxSide 로 맞추고
+   용량이 넘치면 화질을 조금씩 낮추며 다시 시도합니다. */
+async function shrinkImage(file: File): Promise<string> {
+  const source = await createImageBitmap(file);
+  const scale = Math.min(1, PHOTO_LIMITS.maxSide / Math.max(source.width, source.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(source.width * scale));
+  canvas.height = Math.max(1, Math.round(source.height * scale));
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("이 브라우저에서는 사진을 줄일 수 없어요.");
+  ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+  source.close();
+
+  for (const quality of [0.78, 0.66, 0.55, 0.45, 0.35]) {
+    const dataUrl = canvas.toDataURL("image/jpeg", quality);
+    if (dataUrl.length <= PHOTO_LIMITS.chars) return dataUrl;
+  }
+  throw new Error("사진이 너무 커요. 더 작은 사진으로 올려 주세요.");
+}
+
+const PHOTO_FETCH_LIMIT = 60;
+
+function PhotoUploader({ user }: { user: SiteUser | null }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+
+  if (!user) {
+    return (
+      <div className="cy-auth-bar">
+        <span className="cy-auth-hint">구글 계정으로 로그인하면 사진을 올릴 수 있어요.</span>
+        <SignInButton label="구글로 로그인" />
+      </div>
+    );
+  }
+
+  const pick = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || busy) return;
+
+    setBusy(true);
+    setMessage(null);
+    try {
+      const dataUrl = await shrinkImage(file);
+      await addPhoto(file.name.replace(/\.[^.]+$/, ""), dataUrl);
+      setMessage({ kind: "ok", text: "사진을 올렸어요!" });
+    } catch (error) {
+      setMessage({ kind: "error", text: error instanceof Error ? error.message : "올리지 못했어요. 잠시 뒤 다시 시도해 주세요." });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="cy-auth-bar">
+      <span className="cy-gb-me">{user.name}</span>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        onChange={pick}
+        hidden
+        aria-label="사진 고르기"
+      />
+      <button
+        type="button"
+        className="cy-auth-btn"
+        onClick={() => inputRef.current?.click()}
+        disabled={busy}
+      >
+        {busy ? "올리는 중…" : "사진 올리기"}
+      </button>
+      <button type="button" className="cy-auth-out" onClick={() => signOutUser()}>
+        로그아웃
+      </button>
+      {message ? (
+        <span className={`cy-gb-message${message.kind === "error" ? " is-error" : ""}`}>{message.text}</span>
+      ) : null}
+    </div>
+  );
+}
+
 function PhotoTab() {
+  const user = useSiteUser();
+  const [remote, setRemote] = useState<RemotePhoto[] | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (!isGuestbookEnabled) return;
+    return subscribePhotos(PHOTO_FETCH_LIMIT, setRemote, () => setFailed(true));
+  }, []);
+
+  const live = isGuestbookEnabled && !failed;
+  /* 방문자가 올린 사진이 먼저, 그 뒤에 linktree.ts 에 적어 둔 사진이 붙습니다. */
+  const items = [
+    ...(live && remote ? remote.map(p => ({ key: p.id, src: p.src, name: p.name, author: p.author, uid: p.uid })) : []),
+    ...photos.map(p => ({ key: `local-${p.id}`, src: asset(p.src), name: p.name, author: "", uid: undefined as string | undefined }))
+  ];
+
   return (
     <div className="cy-content-box">
-      <SectionTitle title={profile.photoLabel} sub={`${profile.photoSubtitlePrefix} ${photos.length}컷`} />
-      <ul className="cy-photo-grid">
-        {photos.map(photo => (
-          <li key={photo.id} className="cy-photo-item">
-            <div className="cy-photo-frame">
-              <img src={asset(photo.src)} alt={photo.name} loading="lazy" />
-            </div>
-          </li>
-        ))}
-      </ul>
+      <SectionTitle title={profile.photoLabel} sub={`${profile.photoSubtitlePrefix} ${items.length}컷`} />
+
+      {live ? <PhotoUploader user={user} /> : null}
+
+      {live && remote === null ? <div className="cy-gb-loading">사진을 불러오는 중…</div> : null}
+
+      {items.length === 0 && !(live && remote === null) ? (
+        <div className="cy-gb-loading">아직 사진이 없어요. 첫 사진을 올려 주세요!</div>
+      ) : (
+        <ul className="cy-photo-grid">
+          {items.map(photo => (
+            <li key={photo.key} className="cy-photo-item">
+              <div className="cy-photo-frame">
+                <img src={photo.src} alt={photo.name} loading="lazy" />
+                {user && photo.uid === user.uid ? (
+                  <button
+                    type="button"
+                    className="cy-photo-del"
+                    onClick={() => deletePhoto(photo.key).catch(() => {})}
+                    aria-label="내 사진 지우기"
+                    title="내 사진 지우기"
+                  >
+                    ✕
+                  </button>
+                ) : null}
+              </div>
+              {photo.name || photo.author ? (
+                <div className="cy-photo-caption">
+                  <span className="cy-photo-name">{photo.name}</span>
+                  {photo.author ? <span className="cy-photo-author">{photo.author}</span> : null}
+                </div>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

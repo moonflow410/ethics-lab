@@ -855,6 +855,106 @@ body.lt-intro-open {
   max-height: 100%;
   object-fit: contain;
 }
+/* 사진 액자 위에 겹쳐 뜨는 내 사진 지우기 버튼입니다. */
+.cy-photo-frame {
+  position: relative;
+}
+.cy-photo-del {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid #CFC5E6;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.92);
+  color: #7C6FA6;
+  font-size: 0.62rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.cy-photo-del:hover {
+  background: #7A4FC7;
+  border-color: #7A4FC7;
+  color: #fff;
+}
+
+.cy-photo-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  font-size: 0.68rem;
+  line-height: 1.3;
+  text-align: center;
+}
+.cy-photo-name { color: #555; }
+.cy-photo-author { color: #999; font-size: 0.62rem; }
+
+/* 구글 로그인 안내 줄 (한줄평·사진첩 공용) */
+.cy-auth-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0;
+  padding: 8px 10px;
+  border: 1px solid #E1D9F1;
+  border-radius: 4px;
+  background: #FBF9FE;
+}
+.cy-auth-hint {
+  font-size: 0.72rem;
+  color: #666;
+}
+.cy-auth-btn {
+  padding: 4px 12px;
+  border: 1px solid #7C6FA6;
+  border-radius: 3px;
+  background: #7C6FA6;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.cy-auth-btn:hover:not(:disabled) { background: #7A4FC7; border-color: #7A4FC7; }
+.cy-auth-btn:disabled { opacity: 0.6; cursor: default; }
+
+.cy-auth-out {
+  padding: 3px 8px;
+  border: 1px solid #E1D9F1;
+  border-radius: 3px;
+  background: #fff;
+  color: #888;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+.cy-auth-out:hover { color: #7A4FC7; border-color: #CFC5E6; }
+
+/* 로그인한 사람 이름입니다. 이름 입력칸 자리를 대신합니다. */
+.cy-gb-me {
+  flex: none;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: bold;
+  color: #7C6FA6;
+}
+
+/* 한줄평 목록에서 내가 쓴 줄에만 붙는 지우기 버튼입니다. */
+.cy-mine-del {
+  margin-left: 4px;
+  padding: 0 3px;
+  border: 0;
+  background: none;
+  color: #B8AED9;
+  font-size: 0.62rem;
+  cursor: pointer;
+}
+.cy-mine-del:hover { color: #7A4FC7; }
 
 .cy-empty-box {
   font-size: 0.78rem;

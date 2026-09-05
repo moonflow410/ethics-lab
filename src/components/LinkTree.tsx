@@ -651,7 +651,7 @@ export default function LinkTree() {
                 </div>
 
                 <div className="cy-intro-text">
-                  {profile.introDescription}
+                  {profile.photoCaption}
                 </div>
 
                 <BgmPlayer ref={bgmRef} />

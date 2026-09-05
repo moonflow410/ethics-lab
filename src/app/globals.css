@@ -255,6 +255,7 @@ body.lt-intro-open {
   width: 100%;
   font-size: 0.8rem;
   line-height: 1.4;
+  white-space: pre-line; /* 줄바꿈(\n)을 그대로 보여 줍니다 */
   color: #444;
   margin-bottom: 20px;
   flex: 1; /* 가변 공간 차지 */
@@ -268,7 +269,7 @@ body.lt-intro-open {
   margin-bottom: 10px;
 }
 .name-bold { font-weight: bold; font-size: 0.9rem; color: #222; }
-.title-sub { font-size: 0.7rem; color: #666; margin-top: 3px; }
+.title-sub { font-size: 0.7rem; color: #666; margin-top: 3px; white-space: pre-line; }
 
 .cy-left-dropdown {
   width: 100%;

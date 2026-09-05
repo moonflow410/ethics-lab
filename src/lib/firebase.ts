@@ -203,34 +203,27 @@ export function subscribeGuestbook(
   );
 }
 
-export async function addGuestbookEntry(text: string) {
+/* 한줄평은 로그인 없이 누구나 익명으로 남길 수 있습니다.
+   원치 않는 글은 Firebase 콘솔의 guestbook 컬렉션에서 지우면 됩니다. */
+export async function addGuestbookEntry(author: string, text: string) {
   const store = getDb();
   if (!store) throw new Error("한줄평 기능이 설정되지 않았습니다.");
 
-  const current = requireUser();
-  const author = (current.displayName?.trim() || "이름 없는 방문자").slice(0, GUESTBOOK_LIMITS.author);
+  const trimmedAuthor = author.trim();
   const trimmedText = text.trim();
 
-  if (!trimmedText) throw new Error("한줄평을 적어 주세요.");
+  if (!trimmedAuthor || !trimmedText) throw new Error("이름과 한줄평을 모두 적어 주세요.");
+  if (trimmedAuthor.length > GUESTBOOK_LIMITS.author) throw new Error(`이름은 ${GUESTBOOK_LIMITS.author}자까지 쓸 수 있어요.`);
   if (trimmedText.length > GUESTBOOK_LIMITS.text) throw new Error(`한줄평은 ${GUESTBOOK_LIMITS.text}자까지 쓸 수 있어요.`);
 
   /* approved 는 지금은 항상 true 입니다. 나중에 승인제로 바꾸려면
      이 값을 false 로 두고 firestore.rules 의 read 조건만 바꾸면 됩니다. */
   await addDoc(collection(store, "guestbook"), {
-    author,
+    author: trimmedAuthor,
     text: trimmedText,
     approved: true,
-    uid: current.uid,
     createdAt: serverTimestamp()
   });
-}
-
-/* 자기가 남긴 한줄평만 지울 수 있습니다. */
-export async function deleteGuestbookEntry(id: string) {
-  const store = getDb();
-  if (!store) throw new Error("한줄평 기능이 설정되지 않았습니다.");
-  requireUser();
-  await deleteDoc(doc(store, "guestbook", id));
 }
 
 /* ---------------------------------------------------------------

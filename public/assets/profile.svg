@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 400" width="320" height="400" role="img" aria-label="프로필 사진 자리">
+  <defs>
+    <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EFEBF7"/>
+      <stop offset="100%" stop-color="#E8DFF5"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="400" fill="url(#pg)"/>
+  <circle cx="160" cy="158" r="52" fill="#B8AED9"/>
+  <path d="M62 330c0-52 44-88 98-88s98 36 98 88z" fill="#B8AED9"/>
+  <text x="160" y="372" text-anchor="middle" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif" font-size="17" fill="#7C6FA6">사진을 넣어 주세요</text>
+</svg>

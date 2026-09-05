@@ -1,14 +1,14 @@
 {
-  "name": "mini-homepage",
+  "name": "ethics-lab",
   "version": "1.0.0",
   "private": false,
   "license": "MIT",
-  "author": "ljh6479z",
+  "author": "moonflow410",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ljh6479z/mini-homepage.git"
+    "url": "https://github.com/moonflow410/ethics-lab.git"
   },
-  "homepage": "https://ljh6479z.github.io/mini-homepage/",
+  "homepage": "https://moonflow410.github.io/ethics-lab/",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

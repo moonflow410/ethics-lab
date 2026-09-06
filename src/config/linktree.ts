@@ -84,6 +84,14 @@ export type BoardPost = {
 
 export const boardPosts: BoardPost[] = [
   {
+    id: "counseling-request",
+    category: "앱",
+    title: "담임 상담 신청",
+    summary: "상담 주제와 가능한 날짜를 골라 신청하면 선생님이 미리 확인합니다",
+    date: "2026.09.05",
+    href: "https://script.google.com/macros/s/AKfycbyIj07bIttJ3_PaVI9odoIVx1BwEjFYlvamP1HmKT7pZr7qoEj2ZKVc2HwmL5-5YQAOfw/exec"
+  },
+  {
     id: "veil-escape",
     category: "앱",
     title: "무지의 베일 방탈출",

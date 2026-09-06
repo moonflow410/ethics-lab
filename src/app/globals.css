@@ -1532,3 +1532,88 @@ body.lt-intro-open {
   color: #444;
   white-space: pre-line;
 }
+
+/* ------------------------------------- */
+/* 미니룸 : 우주 탐구                      */
+/* ------------------------------------- */
+
+.cy-room {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cy-room-stage {
+  position: relative;
+  border: 1px solid #4A4468;
+  border-radius: 6px;
+  overflow: hidden;
+  outline: none;
+  cursor: pointer;
+}
+.cy-room-stage.is-active {
+  box-shadow: 0 0 0 2px #9B7FD4;
+}
+
+.cy-room-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cy-room-star {
+  animation: cy-twinkle 3.2s ease-in-out infinite;
+}
+@keyframes cy-twinkle {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.25; }
+}
+
+.cy-room-hero {
+  transition: transform 0.14s ease-out;
+}
+
+.cy-room-planet-label {
+  fill: #F7F5FB;
+  font-size: 13px;
+  font-family: "Pretendard", "Dotum", sans-serif;
+  transition: opacity 0.2s ease;
+}
+
+.cy-room-hint {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(33,30,58,0.72);
+  color: #E8DFF5;
+  font-size: 0.68rem;
+}
+
+.cy-room-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.cy-room-pad > div {
+  display: flex;
+  gap: 22px;
+}
+.cy-room-pad button {
+  width: 30px;
+  height: 26px;
+  border: 1px solid #CFC5E6;
+  border-radius: 4px;
+  background: #FBF9FE;
+  color: #7C6FA6;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+.cy-room-pad button:hover { background: #7C6FA6; border-color: #7C6FA6; color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cy-room-star { animation: none; }
+  .cy-room-hero { transition: none; }
+}

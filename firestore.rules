@@ -84,6 +84,73 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    /* ------------------------------------------------------------
+       주인만 고칠 수 있는 영역입니다.
+       아래 UID 는 Firebase 콘솔 > Authentication > 사용자 의 값입니다.
+       UID 는 이메일과 달리 그 자체로 누구인지 알 수 없어 공개해도 됩니다.
+       ------------------------------------------------------------ */
+    function isOwner() {
+      return request.auth != null
+        && request.auth.uid == 'RonqdDorXSZgDOSFafu9Rf7w5383';
+    }
+
+    /* 미니홈피 문구 묶음 (이름, 소속, 사진 아래 소개, 제목, 주소 표시줄) */
+    match /site/{docId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    /* 탭 목록 */
+    match /tabs/{tabId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    /* 게시판형 탭의 글 */
+    match /posts/{postId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    /* 소개 글 탭의 문단 */
+    match /sections/{sectionId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    /* 파도타기 링크 */
+    match /links/{linkId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    /* 방명록 탭입니다. 로그인해야 남길 수 있고, 비밀글은 쓴 사람과 주인만 봅니다.
+       목록을 불러올 때 Firestore 가 조건을 검사하므로,
+       화면에서는 공개글과 내 비밀글을 따로 불러와 합칩니다. */
+    match /visits/{visitId} {
+      allow read: if resource.data.secret == false
+        || (request.auth != null && request.auth.uid == resource.data.uid)
+        || isOwner();
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['author', 'uid', 'text', 'secret', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.author is string
+        && request.resource.data.author.size() >= 1
+        && request.resource.data.author.size() <= 20
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 1
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.secret is bool
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if false;
+
+      /* 쓴 사람과 주인이 지울 수 있습니다. */
+      allow delete: if request.auth != null
+        && (request.auth.uid == resource.data.uid || isOwner());
+    }
+
     /* 그 밖의 모든 경로는 차단합니다. */
     match /{document=**} {
       allow read, write: if false;

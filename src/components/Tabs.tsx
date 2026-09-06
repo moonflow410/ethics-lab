@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { asset } from "@/lib/asset";
+import MiniRoom from "@/components/MiniRoom";
 import { profile, guestbook } from "@/config/linktree";
 import {
   GUESTBOOK_LIMITS,
@@ -164,9 +165,7 @@ export function HomeTab() {
     <>
       <div className="cy-content-box cy-miniroom-box">
         <SectionTitle title="Mini Room" sub="미니룸" />
-        <div className="cy-miniroom-inner">
-          <img src={asset(profile.miniroom.src)} alt={profile.miniroom.alt} />
-        </div>
+        <MiniRoom />
       </div>
 
       <div className="cy-content-box">

@@ -106,6 +106,14 @@ export const boardPosts: BoardPost[] = [
     summary: "24개 질문에 답하면 나와 결이 닮은 사상가 3명과 교과서 단원을 알려줍니다",
     date: "2026.09.05",
     href: "https://script.google.com/macros/s/AKfycbzy91Cy_jer13LoSNQM_nzMKFDvjSHE7XemvUXMcPrbwWV8eTqzyw3B3tI-B4M3l_HB/exec"
+  },
+  {
+    id: "pilsa-note",
+    category: "앱",
+    title: "필사노트 제출",
+    summary: "필사한 노트를 사진으로 올리면 선생님이 확인합니다. 학번과 PIN으로 한 번만 로그인하면 끝",
+    date: "2026.09.06",
+    href: "https://script.google.com/macros/s/AKfycbzCSkcgE2R0mkRTHUPALJyBL97oYLnG7QlzhluabzXCovYCqYYEsCTDbdPQuYEkj-M8SQ/exec"
   }
 ];
 
@@ -127,7 +135,8 @@ export type WaveLink = {
 };
 
 export const waveLinks: WaveLink[] = [
-  { id: "dorms-activity", label: "도름스 커뮤니티 나의 활동", href: "" }
+  { id: "dorms-activity", label: "도름스 커뮤니티 나의 활동", href: "" },
+  { id: "meyo-lab", label: "더드미요의 미요Lab", href: "https://pcallpang.github.io/meyo-lab/" }
 ];
 
 /* 미니홈피 BGM 입니다. 유튜브 영상을 음원으로 씁니다.

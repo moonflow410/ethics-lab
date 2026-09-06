@@ -193,7 +193,10 @@ export function BoardTabView({
   subtitle?: string;
 }) {
   const [adding, setAdding] = useState(false);
-  const mine = posts.filter(p => p.tabId === tab.id);
+  /* 날짜가 최신인 글이 위로 오게 정렬합니다. */
+  const mine = posts
+    .filter(p => p.tabId === tab.id)
+    .sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <div className="cy-content-box">

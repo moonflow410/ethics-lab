@@ -52,7 +52,7 @@ export type RemoteEntry = {
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 
-function getDb() {
+export function getDb() {
   if (!isGuestbookEnabled) return null;
   if (!db) {
     app = getApps()[0] ?? initializeApp(config as Record<string, string>);
@@ -112,6 +112,11 @@ export async function signInWithGoogle() {
 export async function signOutUser() {
   const instance = getAuthInstance();
   if (instance) await signOut(instance);
+}
+
+/* 지금 로그인한 Firebase 사용자입니다. 로그인 전이면 null 입니다. */
+export function getCurrentUser() {
+  return getAuthInstance()?.currentUser ?? null;
 }
 
 function requireUser() {

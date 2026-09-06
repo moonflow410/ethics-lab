@@ -135,7 +135,7 @@ export type WaveLink = {
 };
 
 export const waveLinks: WaveLink[] = [
-  { id: "dorms-activity", label: "도름스 커뮤니티 나의 활동", href: "" },
+  { id: "dorms-activity", label: "도름스 커뮤니티 나의 활동", href: "https://dorms.school/u/78c7f3fc-5d29-40c8-8da3-34933ae299f3" },
   { id: "meyo-lab", label: "더드미요의 미요Lab", href: "https://pcallpang.github.io/meyo-lab/" }
 ];
 

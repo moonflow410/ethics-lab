@@ -239,16 +239,20 @@ function StoryTab() {
 }
 
 function BoardTab() {
+  /* 날짜가 최신인 글이 위로 오게 정렬합니다.
+     linktree.ts 에 적어 둔 순서는 상관없이 date 값만 보고 줄을 세웁니다. */
+  const sortedPosts = [...boardPosts].sort((a, b) => b.date.localeCompare(a.date));
+
   return (
     <div className="cy-content-box">
       <SectionTitle title={profile.boardLabel} sub={profile.boardSubtitle} />
-      {boardPosts.length === 0 ? (
+      {sortedPosts.length === 0 ? (
         <div className="cy-empty-box">
           {profile.boardEmptyText}
         </div>
       ) : (
         <ul className="cy-board-list">
-          {boardPosts.map(post => (
+          {sortedPosts.map(post => (
             <li key={post.id} className="cy-board-item">
               <a className="cy-board-link" href={post.href} target="_blank" rel="noopener noreferrer">
                 {post.preview ? (

@@ -1287,3 +1287,248 @@ body.lt-intro-open {
     min-width: 52px;
   }
 }
+
+/* ------------------------------------- */
+/* 주인 편집 도구                          */
+/* ------------------------------------- */
+
+.cy-owner-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border: 1px solid #B8AED9;
+  border-radius: 4px;
+  background: #F0EBF9;
+}
+.cy-owner-me {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #4A4468;
+}
+
+.cy-edit-pencil {
+  margin-left: 4px;
+  padding: 0 4px;
+  border: 1px solid #CFC5E6;
+  border-radius: 3px;
+  background: #FBF9FE;
+  color: #7C6FA6;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.cy-edit-pencil:hover { background: #7A4FC7; border-color: #7A4FC7; color: #fff; }
+
+.cy-edit-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.cy-edit-box input,
+.cy-edit-box textarea {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #B8AED9;
+  border-radius: 3px;
+  font: inherit;
+  font-size: 0.75rem;
+  color: #333;
+  resize: vertical;
+}
+
+.cy-edit-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.cy-edit-save {
+  padding: 3px 10px;
+  border: 1px solid #7C6FA6;
+  border-radius: 3px;
+  background: #7C6FA6;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.cy-edit-save:hover:not(:disabled) { background: #7A4FC7; border-color: #7A4FC7; }
+.cy-edit-save:disabled { opacity: 0.6; cursor: default; }
+.cy-edit-cancel {
+  padding: 3px 10px;
+  border: 1px solid #E1D9F1;
+  border-radius: 3px;
+  background: #fff;
+  color: #888;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+.cy-edit-cancel:hover { color: #7A4FC7; }
+
+.cy-admin-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px dashed #B8AED9;
+  border-radius: 4px;
+  background: #FBF9FE;
+}
+.cy-admin-title {
+  font-size: 0.76rem;
+  font-weight: bold;
+  color: #7C6FA6;
+}
+.cy-admin-box input,
+.cy-admin-box textarea,
+.cy-admin-box select {
+  padding: 4px 6px;
+  border: 1px solid #CFC5E6;
+  border-radius: 3px;
+  font: inherit;
+  font-size: 0.75rem;
+  color: #333;
+  resize: vertical;
+}
+
+.cy-admin-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cy-admin-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 1px solid #EDE8F7;
+  border-radius: 3px;
+  background: #fff;
+  font-size: 0.72rem;
+}
+.cy-admin-row button {
+  padding: 2px 6px;
+  border: 1px solid #E1D9F1;
+  border-radius: 3px;
+  background: #fff;
+  color: #7C6FA6;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+.cy-admin-row button:disabled { opacity: 0.4; cursor: default; }
+.cy-admin-kind {
+  flex: none;
+  min-width: 62px;
+  color: #999;
+  font-size: 0.66rem;
+}
+.cy-admin-name { flex: 1; min-width: 0; }
+.cy-admin-url {
+  flex: 2;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #888;
+  font-size: 0.66rem;
+}
+.cy-admin-del { color: #c0392b !important; }
+
+.cy-admin-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.cy-admin-add input { flex: 1; min-width: 110px; }
+
+.cy-inline-admin {
+  display: inline-flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+.cy-inline-admin button {
+  padding: 2px 8px;
+  border: 1px solid #E1D9F1;
+  border-radius: 3px;
+  background: #fff;
+  color: #7C6FA6;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.cy-pre { white-space: pre-line; }
+.cy-board-text {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: #555;
+  white-space: pre-line;
+}
+
+/* ------------------------------------- */
+/* 방명록 탭                               */
+/* ------------------------------------- */
+
+.cy-visit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid #E1D9F1;
+  border-radius: 4px;
+  background: #FBF9FE;
+}
+.cy-visit-form textarea {
+  padding: 6px;
+  border: 1px solid #CFC5E6;
+  border-radius: 3px;
+  font: inherit;
+  font-size: 0.78rem;
+  resize: vertical;
+}
+.cy-visit-secret {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: #666;
+}
+
+.cy-visit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cy-visit-item {
+  padding: 8px 10px;
+  border: 1px solid #EDE8F7;
+  border-radius: 4px;
+  background: #fff;
+}
+.cy-visit-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.cy-visit-author { font-size: 0.75rem; font-weight: bold; color: #4A4468; }
+.cy-visit-lock { font-size: 0.66rem; color: #7A4FC7; }
+.cy-visit-date { font-size: 0.66rem; color: #999; margin-left: auto; }
+.cy-visit-text {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #444;
+  white-space: pre-line;
+}
